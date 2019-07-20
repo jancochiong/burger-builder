@@ -6,6 +6,7 @@ import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
 import Spinner from '../../components/UI/Spinner/Spinner';
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 import axios from '../../axios-orders';
+import { encode } from 'querystring';
 
 const INGREDIENT_PRICES = {
     salad: 0.5,
@@ -24,6 +25,7 @@ class BurgerBuilder extends Component{
         error: false
     }
     componentDidMount(){
+        console.log(this.props);
         axios.get('https://react-burger-builder-f028c.firebaseio.com/ingredients.json')
         .then(response => {
             this.setState({ingredients: response.data});
@@ -87,27 +89,37 @@ class BurgerBuilder extends Component{
     }
 
     purchaseContinueHandler = () => {
-        this.setState({loading: true});
+        // this.setState({loading: true});
 
-        const order = {
-            ingredients: this.state.ingredients,
-            price: this.state.totalPrice,
-            customer: {
-                name: 'Jan Co Chiong',
-                addess: {
-                    street: 'Teststreet 1',
-                    zipCode: '12313',
-                    country: 'Canada'
-                },
-                email: 'test@test.com'
-            },
-            deliveryMethod: 'fastest'
+        // const order = {
+        //     ingredients: this.state.ingredients,
+        //     price: this.state.totalPrice,
+        //     customer: {
+        //         name: 'Jan Co Chiong',
+        //         addess: {
+        //             street: 'Teststreet 1',
+        //             zipCode: '12313',
+        //             country: 'Canada'
+        //         },
+        //         email: 'test@test.com'
+        //     },
+        //     deliveryMethod: 'fastest'
+        // }
+        // axios.post('/orders.json', order)
+        // .then(response => {
+        //     this.setState({loading: false, purchasing: false})
+        // }).catch(error => {
+        //     this.setState({loading: false, purchasing: false});
+        // });
+
+        const queryParams = [];
+        for(let i in this.state.ingredients){
+            queryParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(this.state.ingredients[i]));
         }
-        axios.post('/orders.json', order)
-        .then(response => {
-            this.setState({loading: false, purchasing: false})
-        }).catch(error => {
-            this.setState({loading: false, purchasing: false});
+        const queryString = queryParams.join('&');
+        this.props.history.push({
+            pathname: '/checkout',
+            search: '?' + queryString
         });
     }
 
